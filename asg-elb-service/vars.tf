@@ -25,3 +25,7 @@ variable "server_port" {
 variable "elb_port" {
   description = "The port number the ELB should listen on for HTTP requests"
 }
+
+variable "message" {
+  description = "The message to show in the application home page"
+}

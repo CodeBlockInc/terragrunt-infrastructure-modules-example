@@ -48,16 +48,23 @@ data "aws_availability_zones" "all" {}
 # as a variable.
 # ---------------------------------------------------------------------------------------------------------------------
 
+data "template_file" "init" {
+  template = <<-EOF
+              #!/bin/bash
+              echo $${message} > index.html
+              nohup busybox httpd -f -p "${var.server_port}" &
+              EOF
+
+  vars {
+    message = "${var.message}"
+  }
+}
+
 resource "aws_launch_configuration" "webserver_example" {
   image_id        = "${data.aws_ami.ubuntu.id}"
   instance_type   = "${var.instance_type}"
   security_groups = ["${aws_security_group.asg.id}"]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              echo "Hello, World" > index.html
-              nohup busybox httpd -f -p "${var.server_port}" &
-              EOF
+  user_data       = "${data.template_file.init.rendered}"
 
   lifecycle {
     create_before_destroy = true
