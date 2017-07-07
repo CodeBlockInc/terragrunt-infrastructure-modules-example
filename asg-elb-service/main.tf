@@ -36,6 +36,10 @@ resource "aws_autoscaling_group" "webserver_example" {
     value               = "${var.name}"
     propagate_at_launch = true
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 data "aws_availability_zones" "all" {}
@@ -61,6 +65,7 @@ data "template_file" "init" {
 }
 
 resource "aws_launch_configuration" "webserver_example" {
+  name_prefix     = "${var.name}-lc-"
   image_id        = "${data.aws_ami.ubuntu.id}"
   instance_type   = "${var.instance_type}"
   security_groups = ["${aws_security_group.asg.id}"]
